@@ -1,0 +1,13 @@
+{
+    "port": "8080",
+    "db": {
+        "name": "lochat_dev",
+        "user": "cody",
+        "password": "password",
+        "port": "5432"
+    },
+    "jwt": {
+        "secret": "secret",
+        "days_valid_for": 1000
+    }
+}
