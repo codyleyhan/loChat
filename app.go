@@ -30,8 +30,13 @@ func StartApp() {
 		Port:     conf.Get("db.port"),
 	}
 	db := utils.ConnectToDB(dbOpts)
-	db.LogMode(true)
 	defer db.Close()
+
+	db.LogMode(true)
+
+	// Needed for dealing with location
+	db.Exec("CREATE EXTENSION IF NOT EXISTS cube;")
+	db.Exec("CREATE EXTENSION IF NOT EXISTS earthdistance;")
 
 	jwtNumDays := conf.GetInt("jwt.days_valid_for")
 	jwtSecret := conf.Get("jwt.secret")

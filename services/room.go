@@ -13,18 +13,46 @@ type roomService struct {
 }
 
 func (r *roomService) getAll(c context) error {
-	// user := getUser(c)
+	user := getUser(c)
 
-	// if !user.Admin {
-	// 	return c.JSON(http.StatusForbidden, res{
-	// 		"message": "You are not allowed.",
-	// 	})
-	// }
+	if !user.Admin {
+		return c.JSON(http.StatusForbidden, res{
+			"message": "You are not allowed.",
+		})
+	}
 
 	rooms, err := r.store.GetAll()
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, res{
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, res{
+		"rooms": rooms,
+	})
+}
+
+func (r *roomService) search(c context) error {
+	var roomQuery models.RoomQuery
+
+	if err := c.Bind(&roomQuery); err != nil {
+		return c.JSON(http.StatusBadRequest, res{
+			"message": err.Error(),
+		})
+	}
+
+	if err := roomQuery.Validate(); err != nil {
+		return c.JSON(http.StatusBadRequest, res{
+			"message": err.Error(),
+		})
+	}
+
+	rooms, err := r.store.GetWithinRadius(&roomQuery)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, res{
 			"message": err.Error(),
 		})
 	}
@@ -80,4 +108,5 @@ func registerRoomService(router *echo.Group, store stores.RoomStore) {
 
 	router.GET("", service.getAll)
 	router.POST("", service.create)
+	router.POST("/search", service.search)
 }
