@@ -46,25 +46,9 @@ func StartApp() {
 	utils.AddMiddleware(app, logo)
 
 	userStore := stores.CreateUserStore(db)
+	roomStore := stores.CreateRoomStore(db)
 
-	services.RegisterServices(app, userStore, &jwt)
-
-	// Example of a secure route
-	app.GET("/secure", func(c echo.Context) error {
-		user := c.Get("user")
-
-		return c.JSON(200, map[string]interface{}{
-			"Hello": "World",
-			"user":  user,
-		})
-	}, utils.CheckToken(&jwt))
-
-	// Example of unsecured
-	app.GET("/", func(c echo.Context) error {
-		return c.JSON(200, map[string]interface{}{
-			"Hello": "World",
-		})
-	})
+	services.RegisterServices(app, userStore, roomStore, &jwt)
 
 	port := ":" + conf.Get("port")
 	fmt.Println("Starting server on port:", conf.Get("port"))
